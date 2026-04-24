@@ -462,4 +462,7 @@ if __name__ == '__main__':
     print(f"  Alert sender       : {ALERT_SENDER_EMAIL}")
     print(f"  Alert recipient    : {ALERT_RECIPIENT_EMAIL}")
     print("=" * 60)
-    app.run(host='0.0.0.0', port=5000, debug=True)
+
+    import os
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host='0.0.0.0', port=port)
