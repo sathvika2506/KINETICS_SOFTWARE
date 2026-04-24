@@ -2,32 +2,32 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
 
 // ─── API & CONSTANTS ──────────────────────────────────────────────────────────
-const API_URL        = 'http://' + window.location.hostname + ':5000/run-prediction';
-const MAX_HISTORY    = 40;
-const POLL_INTERVAL  = 1000;
-const COORDS_LAT     = 12.824589;
-const COORDS_LNG     = 80.046896;
-const COORDS         = `${COORDS_LAT}, ${COORDS_LNG}`;
+const API_URL = "https://kinetics-ai.onrender.com/run-prediction";
+const MAX_HISTORY = 40;
+const POLL_INTERVAL = 1000;
+const COORDS_LAT = 12.824589;
+const COORDS_LNG = 80.046896;
+const COORDS = `${COORDS_LAT}, ${COORDS_LNG}`;
 const MAPS_EMBED_URL = `https://maps.google.com/maps?q=${COORDS_LAT},${COORDS_LNG}&z=15&output=embed`;
-const MAPS_OPEN_URL  = `https://www.google.com/maps?q=${COORDS_LAT},${COORDS_LNG}`;
-const SRM_MAPS_URL   = 'https://www.google.com/maps/place/SRM+Global+Hospitals/@12.82617,80.0414635,17z';
+const MAPS_OPEN_URL = `https://www.google.com/maps?q=${COORDS_LAT},${COORDS_LNG}`;
+const SRM_MAPS_URL = 'https://www.google.com/maps/place/SRM+Global+Hospitals/@12.82617,80.0414635,17z';
 const NEARBY_HOSPITALS = [
-  { name: 'SRM Global Hospitals',           dist: '1.2 km', alerted: true,  mapsUrl: SRM_MAPS_URL },
-  { name: 'K.R Hospital',                   dist: '3.0 km', alerted: false, mapsUrl: MAPS_OPEN_URL },
+  { name: 'SRM Global Hospitals', dist: '1.2 km', alerted: true, mapsUrl: SRM_MAPS_URL },
+  { name: 'K.R Hospital', dist: '3.0 km', alerted: false, mapsUrl: MAPS_OPEN_URL },
   { name: 'Deepam Multispeciality Hospitals', dist: '3.8 km', alerted: false, mapsUrl: MAPS_OPEN_URL },
 ];
 
 // ─── HELPERS ──────────────────────────────────────────────────────────────────
 function getStability(gForce, isFall) {
-  if (isFall)       return 8;
+  if (isFall) return 8;
   if (gForce >= 15) return 10;
-  if (gForce >= 6)  return Math.max(20, Math.round(40 - (gForce - 6) * 2));
-  if (gForce >= 3)  return Math.max(50, Math.round(100 - (gForce - 3) * 17));
+  if (gForce >= 6) return Math.max(20, Math.round(40 - (gForce - 6) * 2));
+  if (gForce >= 3) return Math.max(50, Math.round(100 - (gForce - 3) * 17));
   return 100;
 }
 function getCategory(isFall, gForce, bpm, o2) {
-  if (isFall)                   return 'critical';
-  if (bpm > 100 || o2 < 90)     return 'clinical';
+  if (isFall) return 'critical';
+  if (bpm > 100 || o2 < 90) return 'clinical';
   if (gForce >= 3 && gForce < 15) return 'stumble';
   return 'normal';
 }
@@ -41,7 +41,7 @@ function buildMessage(isFall, gForce, bpm, o2, name = 'Patient') {
   return `[STATUS] Normal gait signature. Vitals within baseline. Patient ${name} is safe.`;
 }
 const nowLabel = () => new Date().toLocaleTimeString('en-IN', { hour12: false });
-const nowFull  = () => new Date().toLocaleString('en-IN', { weekday: 'short', hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+const nowFull = () => new Date().toLocaleString('en-IN', { weekday: 'short', hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
 
 // ─── REGISTRATION PAGE ────────────────────────────────────────────────────────
 const DEFAULT_FORM = {
@@ -65,9 +65,9 @@ function RegistrationPage({ onSubmit }) {
           <p className="reg-brand-sub">AEGIS Patient Safety Platform</p>
           <p className="reg-brand-desc">Intelligent fall detection &amp; real-time biometric monitoring powered by Body Area Network technology.</p>
           <div className="reg-steps">
-            {['Personal Info','Medical Profile','Confirm & Activate'].map((s,i) => (
-              <div key={i} className={`reg-step-item${step===i+1?' active':''}${step>i+1?' done':''}`}>
-                <div className="reg-step-dot">{step > i+1 ? '✓' : i+1}</div><span>{s}</span>
+            {['Personal Info', 'Medical Profile', 'Confirm & Activate'].map((s, i) => (
+              <div key={i} className={`reg-step-item${step === i + 1 ? ' active' : ''}${step > i + 1 ? ' done' : ''}`}>
+                <div className="reg-step-dot">{step > i + 1 ? '✓' : i + 1}</div><span>{s}</span>
               </div>
             ))}
           </div>
@@ -90,7 +90,7 @@ function RegistrationPage({ onSubmit }) {
             <div className="reg-field">
               <label>Blood Type</label>
               <select value={form.bloodType} onChange={set('bloodType')} required>
-                {['A-Positive','A-Negative','B-Positive','B-Negative','O-Positive','O-Negative','AB-Positive','AB-Negative'].map(t => <option key={t}>{t}</option>)}
+                {['A-Positive', 'A-Negative', 'B-Positive', 'B-Negative', 'O-Positive', 'O-Negative', 'AB-Positive', 'AB-Negative'].map(t => <option key={t}>{t}</option>)}
               </select>
             </div>
             <div className="reg-field"><label>Known Allergies</label><input value={form.allergies} onChange={set('allergies')} /></div>
@@ -105,18 +105,18 @@ function RegistrationPage({ onSubmit }) {
             <div className="reg-confirm-card">
               <div className="reg-confirm-avatar">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" />
                 </svg>
               </div>
               <div className="reg-confirm-rows">
-                {[['Name',`${form.name}, ${form.age} yrs`],['Ward',form.ward],['Blood Type',form.bloodType],['Allergies',form.allergies],['Medications',form.meds],['Emergency',form.emergency]].map(([k,v])=>(
+                {[['Name', `${form.name}, ${form.age} yrs`], ['Ward', form.ward], ['Blood Type', form.bloodType], ['Allergies', form.allergies], ['Medications', form.meds], ['Emergency', form.emergency]].map(([k, v]) => (
                   <div className="reg-confirm-row" key={k}><span>{k}</span><strong>{v}</strong></div>
                 ))}
               </div>
             </div>
             <div className="reg-btn-row">
               <button type="button" className="reg-btn reg-btn--ghost" onClick={() => setStep(2)}>← Back</button>
-              <button type="submit" className={`reg-btn reg-btn--activate${busy?' loading':''}`} disabled={busy}>
+              <button type="submit" className={`reg-btn reg-btn--activate${busy ? ' loading' : ''}`} disabled={busy}>
                 {busy ? 'Activating…' : '🛡️  Begin Monitoring'}
               </button>
             </div>
@@ -187,7 +187,7 @@ function DharmicPage({ interventionKey, onBack }) {
         </button>
         <div className="dharmic-brand">AEGIS | SACRED INTERVENTION MODULE</div>
       </div>
-      
+
       <div className="dharmic-hero">
         <div className="dharmic-hero-tag">PHYSIOLOGICAL SHIFT DETECTED</div>
         <h1 className="dharmic-hero-title">{data.condition}</h1>
@@ -200,12 +200,12 @@ function DharmicPage({ interventionKey, onBack }) {
           <div className="dharmic-temple-element">{data.element}</div>
           <div className="dharmic-temple-loc">📍 {data.location}</div>
           <div className="dharmic-map-wrap">
-            <iframe 
-              src={data.embedUrl} 
-              width="100%" 
-              height="200" 
-              style={{ border: 0, borderRadius: '8px', filter: 'invert(90%) hue-rotate(180deg)' }} 
-              allowFullScreen="" 
+            <iframe
+              src={data.embedUrl}
+              width="100%"
+              height="200"
+              style={{ border: 0, borderRadius: '8px', filter: 'invert(90%) hue-rotate(180deg)' }}
+              allowFullScreen=""
               loading="lazy"
             />
           </div>
@@ -222,10 +222,10 @@ function DharmicPage({ interventionKey, onBack }) {
           </div>
 
           <div className="dharmic-card dharmic-card--caregiver">
-            <h2 className="dharmic-card-title" style={{color: '#ffd93d'}}>Caregiver 'Silent Sewa' Alert</h2>
+            <h2 className="dharmic-card-title" style={{ color: '#ffd93d' }}>Caregiver 'Silent Sewa' Alert</h2>
             <p className="dharmic-caregiver-text">
               Aegis has identified a spiritual root for this physiological shift. To maintain the patient's Shanti (peace), do not trigger an alarm. Instead, invite them for a peaceful pilgrimage to the suggested destination.
-              <br/><br/>
+              <br /><br />
               <strong>Action:</strong> {data.caregiver}
             </p>
           </div>
@@ -280,14 +280,14 @@ function CommandCenter({ time, isFall }) {
 
 // ─── AI AGENT REASONING ───────────────────────────────────────────────────────
 function AgentReasoning({ isFall, gForce, bpm, o2, patient, onViewDharmic }) {
-  const [typed, setTyped]   = useState('');
-  const [history, setHist]  = useState([{ time: nowLabel(), text: '[BOOT] AEGIS system initialised. Awaiting sensor handshake…', cat: 'normal' }]);
-  const timerRef   = useRef(null);
+  const [typed, setTyped] = useState('');
+  const [history, setHist] = useState([{ time: nowLabel(), text: '[BOOT] AEGIS system initialised. Awaiting sensor handshake…', cat: 'normal' }]);
+  const timerRef = useRef(null);
   const prevCatRef = useRef('boot');
-  const bottomRef  = useRef(null);
-  const name       = patient?.name || 'Patient';
-  const cat        = getCategory(isFall, gForce, bpm, o2);
-  const fullMsg    = buildMessage(isFall, gForce, bpm, o2, name);
+  const bottomRef = useRef(null);
+  const name = patient?.name || 'Patient';
+  const cat = getCategory(isFall, gForce, bpm, o2);
+  const fullMsg = buildMessage(isFall, gForce, bpm, o2, name);
 
   useEffect(() => {
     if (cat === prevCatRef.current) return;
@@ -344,12 +344,12 @@ function CircularGauge({ value, size = 110, stroke = 9 }) {
   const r = (size - stroke) / 2;
   const circ = 2 * Math.PI * r;
   const offset = circ * (1 - Math.max(0, Math.min(100, value)) / 100);
-  const color  = value > 70 ? '#7FAF9C' : value > 40 ? '#ffd93d' : '#e88fa3';
+  const color = value > 70 ? '#7FAF9C' : value > 40 ? '#ffd93d' : '#e88fa3';
   return (
     <div style={{ position: 'relative', width: size, height: size }}>
       <svg width={size} height={size} style={{ transform: 'rotate(-90deg)' }}>
-        <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth={stroke} />
-        <circle cx={size/2} cy={size/2} r={r} fill="none" stroke={color} strokeWidth={stroke}
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth={stroke} />
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={color} strokeWidth={stroke}
           strokeDasharray={circ} strokeDashoffset={offset} strokeLinecap="round"
           style={{ transition: 'stroke-dashoffset 0.9s ease, stroke 0.5s ease' }} />
       </svg>
@@ -435,15 +435,15 @@ function KineticChart({ history }) {
           <AreaChart data={history} margin={{ top: 10, right: 16, left: -10, bottom: 0 }}>
             <defs>
               <linearGradient id="gf" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%"  stopColor="#AFCBE3" stopOpacity={0.25} />
+                <stop offset="5%" stopColor="#AFCBE3" stopOpacity={0.25} />
                 <stop offset="95%" stopColor="#AFCBE3" stopOpacity={0.02} />
               </linearGradient>
               <linearGradient id="bpmf" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%"  stopColor="#e88fa3" stopOpacity={0.15} />
+                <stop offset="5%" stopColor="#e88fa3" stopOpacity={0.15} />
                 <stop offset="95%" stopColor="#e88fa3" stopOpacity={0.01} />
               </linearGradient>
               <linearGradient id="o2f" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%"  stopColor="#7FAF9C" stopOpacity={0.15} />
+                <stop offset="5%" stopColor="#7FAF9C" stopOpacity={0.15} />
                 <stop offset="95%" stopColor="#7FAF9C" stopOpacity={0.01} />
               </linearGradient>
             </defs>
@@ -451,11 +451,11 @@ function KineticChart({ history }) {
             <XAxis dataKey="t" tick={{ fill: 'rgba(255,255,255,0.2)', fontSize: 10 }} tickLine={false} axisLine={false} interval={4} />
             <YAxis yAxisId="left" tick={{ fill: 'rgba(255,255,255,0.2)', fontSize: 10 }} tickLine={false} axisLine={false} domain={[0, 20]} />
             <YAxis yAxisId="right" orientation="right" tick={{ fill: 'rgba(255,255,255,0.2)', fontSize: 10 }} tickLine={false} axisLine={false} domain={[0, 150]} />
-            
+
             <Tooltip content={<ChartTip />} />
             <ReferenceLine yAxisId="left" y={15} stroke="#e88fa3" strokeDasharray="5 3" strokeOpacity={0.5} label={{ value: 'FALL', fill: '#e88fa3', fontSize: 9, position: 'insideTopLeft' }} />
-            <ReferenceLine yAxisId="left" y={3}  stroke="#ffd93d" strokeDasharray="5 3" strokeOpacity={0.4} label={{ value: 'STUMBLE', fill: '#ffd93d', fontSize: 9, position: 'insideTopLeft' }} />
-            
+            <ReferenceLine yAxisId="left" y={3} stroke="#ffd93d" strokeDasharray="5 3" strokeOpacity={0.4} label={{ value: 'STUMBLE', fill: '#ffd93d', fontSize: 9, position: 'insideTopLeft' }} />
+
             <Area yAxisId="left" type="monotone" dataKey="g" stroke="#AFCBE3" strokeWidth={2} fill="url(#gf)" dot={false} isAnimationActive={false} />
             <Area yAxisId="right" type="monotone" dataKey="bpm" stroke="#e88fa3" strokeWidth={1.5} fill="url(#bpmf)" dot={false} isAnimationActive={false} />
             <Area yAxisId="right" type="monotone" dataKey="o2" stroke="#7FAF9C" strokeWidth={1.5} fill="url(#o2f)" dot={false} isAnimationActive={false} />
@@ -474,16 +474,16 @@ function PatientStrip({ patient }) {
     <div className="patient-strip">
       <div className="ps-avatar">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" />
         </svg>
       </div>
       <div className="ps-name">{name}<span className="ps-age">, {age}</span></div>
       <div className="ps-id">{id}</div>
-      <div className="ps-divider"/>
+      <div className="ps-divider" />
       <div className="ps-pills">
         {bloodType && <span className="ps-pill ps-pill--blood">{bloodType}</span>}
-        {allergies.map((a,i) => <span key={i} className="ps-pill ps-pill--allergy">⚠ {a}</span>)}
-        {medications.map((m,i) => <span key={i} className="ps-pill ps-pill--med">Rx {m.name}</span>)}
+        {allergies.map((a, i) => <span key={i} className="ps-pill ps-pill--allergy">⚠ {a}</span>)}
+        {medications.map((m, i) => <span key={i} className="ps-pill ps-pill--med">Rx {m.name}</span>)}
         <span className="ps-pill ps-pill--ward">{ward}</span>
       </div>
     </div>
@@ -534,15 +534,15 @@ function EmergencyOverlay({ onDismiss }) {
 
 // ─── ROOT APP ─────────────────────────────────────────────────────────────────
 export default function App() {
-  const [page, setPage]         = useState('register');
+  const [page, setPage] = useState('register');
   const [dharmicKey, setDharmicKey] = useState(null);
-  const [vitals, setVitals]     = useState({ gForce: 0, bpm: 0, o2: 0, isFall: false, event: 'BOOT', agent_reasoning: '', patient: null });
-  const [history, setHistory]   = useState([]);
-  const [beat, setBeat]         = useState(false);
-  const [clock, setClock]       = useState(nowFull());
+  const [vitals, setVitals] = useState({ gForce: 0, bpm: 0, o2: 0, isFall: false, event: 'BOOT', agent_reasoning: '', patient: null });
+  const [history, setHistory] = useState([]);
+  const [beat, setBeat] = useState(false);
+  const [clock, setClock] = useState(nowFull());
   const [alarmActive, setAlarmActive] = useState(false);
-  const fallSeenRef             = useRef(false);
-  const [peak, setPeak]         = useState(0);
+  const fallSeenRef = useRef(false);
+  const [peak, setPeak] = useState(0);
 
   // Clock
   useEffect(() => { const id = setInterval(() => setClock(nowFull()), 1000); return () => clearInterval(id); }, []);
@@ -558,7 +558,7 @@ export default function App() {
   // Poll backend
   const fetchVitals = useCallback(async () => {
     try {
-      const res  = await fetch(API_URL);
+      const res = await fetch(API_URL);
       const data = await res.json();
       setVitals(data);
       const g = parseFloat(data.gForce) || 0;
@@ -567,14 +567,14 @@ export default function App() {
         const entry = { t: nowLabel(), g, bpm: data.bpm || 0, o2: data.o2 || 0 };
         return [...prev.slice(-(MAX_HISTORY - 1)), entry];
       });
-      
+
       if (data.isFall && !fallSeenRef.current) {
         setAlarmActive(true);
         fallSeenRef.current = true;
       } else if (!data.isFall) {
         fallSeenRef.current = false;
       }
-    } catch (_) {}
+    } catch (_) { }
   }, []);
 
   useEffect(() => {
@@ -586,7 +586,7 @@ export default function App() {
   if (page === 'register') return <RegistrationPage onSubmit={() => setPage('dashboard')} />;
   if (page === 'dharmic') return <DharmicPage interventionKey={dharmicKey} onBack={() => setPage('dashboard')} />;
 
-  const stability  = getStability(vitals.gForce, vitals.isFall);
+  const stability = getStability(vitals.gForce, vitals.isFall);
   const showOverlay = alarmActive;
 
   return (
